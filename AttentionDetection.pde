@@ -17,8 +17,9 @@ void setup()
 {
   cam = new SimpleOpenNI(this); //initialize kinect camera
   cam.setMirror(true);
-  cam.enableRGB(); //using the RGB camera.  Can not use IR camera now.
+  cam.enableRGB();
   cam.enableDepth();
+  cam.enableScene();
   
   opencv = new OpenCV(this);
   opencv.allocate(cam.rgbWidth(), cam.rgbHeight()); //size of image buffer
@@ -27,16 +28,47 @@ void setup()
   size(cam.rgbWidth(), cam.rgbHeight()); //size of window
 }
 
+//detecting how many people are in the scene
+int findNumPeople()
+{
+  int[] objectMap = cam.sceneMap();
+  ArrayList<Integer> maxPeople = new ArrayList<Integer>();
+  for(int i = 0; i < objectMap.length; i++)
+  {
+    if(!maxPeople.contains(objectMap[i]))
+    {
+      maxPeople.add(objectMap[i]);
+    }
+  }
+  return (maxPeople.size() - 1);
+}
+
+//for printing output only when it changes
+int prevFaces = -1;
+int prevPeople = -1;
+
+//print findings to the terminal
+void printOutput(int numFaces, int numPeople)
+{
+  if(prevFaces != numFaces || prevPeople != numPeople)
+  {
+    println("Number of people: " + numPeople + "\tNumber paying attention: " + numFaces);
+    prevFaces = numFaces;
+    prevPeople = numPeople;
+  }
+}
+
 void draw()
 {
   cam.update(); //get new frame/info from kinect
   opencv.copy(cam.rgbImage()); //get the current frame into opencv
   faceRect = opencv.detect(false); //get rectangle array of faces
   int numFaces = faceRect.length;
+  int numPeople = findNumPeople();
   
+  printOutput(numFaces, numPeople);
   
-  
-  image(cam.depthImage(), 0, 0); //draw the image on the screen
+  image(cam.sceneImage(), 0, 0); //draw the image on the screen
   opencv.drawRectDetect (false); //draw rectangles on faces
 }
 
