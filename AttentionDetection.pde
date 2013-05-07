@@ -25,7 +25,7 @@ void setup()
   opencv.allocate(cam.rgbWidth(), cam.rgbHeight()); //size of image buffer
   opencv.cascade("C:/opencv/data/haarcascades/", "haarcascade_frontalface_alt_tree.xml"); //initialize detection of face
   
-  size(cam.rgbWidth(), cam.rgbHeight()); //size of window
+  size(cam.rgbWidth() * 2, cam.rgbHeight()); //size of window
 }
 
 //detecting how many people are in the scene
@@ -45,17 +45,31 @@ int findNumPeople()
 
 //for printing output only when it changes
 int prevFaces = -1;
+int prevLongFaces = -1;
 int prevPeople = -1;
+int prevTime = -1000;
+boolean updateOutput = true;
 
 //print findings to the terminal
 void printOutput(int numFaces, int numPeople)
 {
-  if(prevFaces != numFaces || prevPeople != numPeople)
+  //only update when the face state has changed for more than 500 milli seconds or the number of people have changed
+  if((millis() - prevTime >= 500 && prevFaces == numFaces && updateOutput) || prevPeople != numPeople)
   {
-    println("Number of people: " + numPeople + "\tNumber paying attention: " + numFaces);
-    prevFaces = numFaces;
-    prevPeople = numPeople;
+    if(prevLongFaces != numFaces || prevPeople != numPeople)
+    {
+      println("Number of people: " + numPeople + "\tNumber paying attention: " + numFaces);
+    }
+    prevLongFaces = numFaces;
+    updateOutput = false;
   }
+  if(numFaces != prevFaces)
+  {
+    prevTime = millis();
+    updateOutput = true;
+  } 
+  prevFaces = numFaces;
+  prevPeople = numPeople;
 }
 
 void draw()
@@ -68,7 +82,8 @@ void draw()
   
   printOutput(numFaces, numPeople);
   
-  image(cam.sceneImage(), 0, 0); //draw the image on the screen
-  opencv.drawRectDetect (false); //draw rectangles on faces
+  image(cam.rgbImage(), 0, 0); //draw the rgb image on screen
+  image(cam.sceneImage(), cam.sceneWidth(), 0); //draw scene image on screen
+  opencv.drawRectDetect (false); //draw rectangles on faces on rgb image
 }
 
