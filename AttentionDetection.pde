@@ -48,17 +48,24 @@ int prevFaces = -1;
 int prevLongFaces = -1;
 int prevPeople = -1;
 int prevTime = -1000;
+int tenSecondTimer = 0;
 boolean updateOutput = true;
+boolean notificationSent = false;
 
 //print findings to the terminal
 void printOutput(int numFaces, int numPeople)
 {
-  //only update when the face state has changed for more than 500 milli seconds or the number of people have changed
-  if((millis() - prevTime >= 500 && prevFaces == numFaces && updateOutput) || prevPeople != numPeople)
+  //only update when the face state has changed for more than 1000 milli seconds or the number of people have changed
+  if((millis() - prevTime >= 1000 && prevFaces == numFaces && updateOutput) || prevPeople != numPeople)
   {
     if(prevLongFaces != numFaces || prevPeople != numPeople)
     {
       println("Number of people: " + numPeople + "\tNumber paying attention: " + numFaces);
+      //reset ability to send not paying attention message because someone is looking now
+      if(numFaces > 0)
+      {
+        notificationSent = false;
+      }
     }
     prevLongFaces = numFaces;
     updateOutput = false;
@@ -68,6 +75,21 @@ void printOutput(int numFaces, int numPeople)
     prevTime = millis();
     updateOutput = true;
   } 
+  
+  if(numFaces == 0 && prevFaces == 0 && !notificationSent)
+  {
+    if(millis() - tenSecondTimer > 3000)
+    {
+      println("3 seconds have gone by since you looked");
+      tenSecondTimer = millis();
+      notificationSent = true;
+    }
+  }
+  else
+  {
+    tenSecondTimer = millis();
+  }
+  
   prevFaces = numFaces;
   prevPeople = numPeople;
 }
