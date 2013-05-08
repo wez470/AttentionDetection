@@ -55,8 +55,8 @@ boolean notificationSent = false;
 //print findings to the terminal
 void printOutput(int numFaces, int numPeople)
 {
-  //only update when the face state has changed for more than 1000 milli seconds or the number of people have changed
-  if((millis() - prevTime >= 1000 && prevFaces == numFaces && updateOutput) || prevPeople != numPeople)
+  //only update when the face state has changed for more than 500 milli seconds or the number of people have changed
+  if((millis() - prevTime >= 500 && prevFaces == numFaces && updateOutput) || prevPeople != numPeople)
   {
     if(prevLongFaces != numFaces || prevPeople != numPeople)
     {
@@ -78,7 +78,7 @@ void printOutput(int numFaces, int numPeople)
   
   if(numFaces == 0 && prevFaces == 0 && !notificationSent)
   {
-    if(millis() - tenSecondTimer > 3000)
+    if(millis() - tenSecondTimer > 10000)
     {
       println("3 seconds have gone by since you looked");
       tenSecondTimer = millis();
@@ -87,6 +87,7 @@ void printOutput(int numFaces, int numPeople)
   }
   else
   {
+    //restart timer
     tenSecondTimer = millis();
   }
   
