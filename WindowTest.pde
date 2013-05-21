@@ -5,12 +5,10 @@ import java.util.ArrayList;
 
 int strBuffSize;
 char[] windowText;
-char[] classText;
 String windowTitle;
 ArrayList<RECT> aboveWindows;
 RECT rectOfInterest;
 HWND windowOfInterest;
-boolean newState = true;
 boolean stateChanged = true;
 boolean overlapped = false;
 
@@ -19,7 +17,6 @@ void setup()
   size(200, 200);
   strBuffSize = 512;
   windowText = new char[strBuffSize];
-  classText = new char[strBuffSize];
   windowTitle = "WindowTest";
   aboveWindows = new ArrayList<RECT>();
   rectOfInterest = new RECT();
@@ -94,26 +91,17 @@ void checkOverlap()
     if(!overlapped)
     {
       overlapped = true;
-      newState = true;
-      stateChanged = true;
-    }
-    if(newState)
-    {
       println("OVERLAP");
-      newState = false;
+      stateChanged = true;
     }
     return;
   }
+  //no overlap since we checked all above windows for overlap
   if(overlapped)
   {
     overlapped = false;
-    newState = true;
-    stateChanged = true;
-  }
-  if(newState)
-  {
     println("NO OVERLAP");
-    newState = false;
+    stateChanged = true;
   }
 }
 
